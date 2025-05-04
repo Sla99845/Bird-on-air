@@ -20,84 +20,77 @@ let player = {
 
 let blocos = [];
 let frame = 0;
-const gap = 320;
+const gap = 220; // Buraco aumentado
+
+// Função de pulo
+function jump() {
+  velocity = lift;
+}
+
+document.addEventListener("keydown", jump);
+canvas.addEventListener("mousedown", jump); // Suporte para celular
+canvas.addEventListener("touchstart", jump); // Suporte para toque
 
 function drawPlayer() {
   ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
 }
 
 function drawBlocos() {
-  for (let i = 0; i < blocos.length; i++) {
-    let b = blocos[i];
+  blocos.forEach(bloco => {
+    ctx.drawImage(blocoImg, bloco.x, bloco.topY, bloco.width, bloco.height);
+    ctx.drawImage(blocoImg, bloco.x, bloco.bottomY, bloco.width, bloco.height);
+  });
+}
 
-    let bottomY = b.y + b.height + gap;
-    let bottomHeight = canvas.height - bottomY;
+function updateBlocos() {
+  if (frame % 90 === 0) {
+    let topHeight = Math.floor(Math.random() * 200) + 50;
+    let bottomY = topHeight + gap;
 
-    // Parte de cima
-    ctx.drawImage(blocoImg, b.x, b.y, 64, b.height);
-    // Parte de baixo
-    ctx.drawImage(blocoImg, b.x, bottomY, 64, bottomHeight);
+    blocos.push({
+      x: canvas.width,
+      topY: 0,
+      bottomY: bottomY,
+      width: 64,
+      height: canvas.height,
+    });
+  }
 
-    b.x -= 2;
+  blocos.forEach(bloco => {
+    bloco.x -= 2;
+  });
 
-    // Colisão
+  // Remover blocos fora da tela
+  blocos = blocos.filter(bloco => bloco.x + bloco.width > 0);
+}
+
+function checkCollision() {
+  for (let bloco of blocos) {
+    let hitboxShrink = 12; // Reduz a hitbox
+
+    let pX = player.x + hitboxShrink;
+    let pY = player.y + hitboxShrink;
+    let pW = player.width - hitboxShrink * 2;
+    let pH = player.height - hitboxShrink * 2;
+
     if (
-      player.x < b.x + 64 &&
-      player.x + player.width > b.x &&
+      pX < bloco.x + bloco.width &&
+      pX + pW > bloco.x &&
       (
-        player.y < b.y + b.height ||
-        player.y + player.height > bottomY
+        pY < bloco.topY + bloco.height ||
+        pY + pH > bloco.bottomY
       )
     ) {
+      // Colidiu
       resetGame();
     }
-
-    if (b.x + 64 < 0) {
-      blocos.splice(i, 1);
-      i--;
-    }
   }
 
-  if (frame % 90 === 0) {
-    let height = Math.floor(Math.random() * 200) + 50;
-    blocos.push({ x: canvas.width, y: 0, height: height });
-  }
-}
-
-function update() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  velocity += gravity;
-  player.y += velocity;
-
-  if (player.y + player.height > canvas.height) {
-    player.y = canvas.height - player.height;
+  // Fora dos limites
+  if (player.y > canvas.height || player.y < 0) {
     resetGame();
   }
-
-  if (player.y < 0) {
-    player.y = 0;
-    velocity = 0;
-  }
-
-  drawPlayer();
-  drawBlocos();
-
-  frame++;
-  requestAnimationFrame(update);
 }
-
-// Suporte para espaço no teclado
-document.addEventListener("keydown", function (e) {
-  if (e.code === "Space") {
-    velocity = lift;
-  }
-});
-
-// Suporte para toque no celular
-document.addEventListener("touchstart", function () {
-  velocity = lift;
-});
 
 function resetGame() {
   player.y = 200;
@@ -106,9 +99,22 @@ function resetGame() {
   frame = 0;
 }
 
-// Inicia o jogo após carregar imagens
+function gameLoop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  drawPlayer();
+  drawBlocos();
+  updateBlocos();
+  checkCollision();
+
+  velocity += gravity;
+  player.y += velocity;
+
+  frame++;
+  requestAnimationFrame(gameLoop);
+}
+
+// Iniciar jogo
 playerImg.onload = () => {
-  blocoImg.onload = () => {
-    update();
-  };
+  gameLoop();
 };
