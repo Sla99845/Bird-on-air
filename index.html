@@ -2,10 +2,35 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Bird on air</title>
+  <title>Bird on Air</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .download-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      z-index: 10;
+    }
+    .download-btn:hover {
+      background-color: #45a049;
+    }
+  </style>
 </head>
 <body>
+
+  <!-- Botão de download -->
+  <a href="https://github.com/sla99845/Bird-on-air/archive/refs/heads/main.zip" download>
+    <button class="download-btn">📦 Baixar Jogo</button>
+  </a>
+
+  <!-- Jogo -->
   <canvas id="gameCanvas" width="400" height="600"></canvas>
   <script src="script.js"></script>
 </body>
