@@ -20,7 +20,7 @@ let player = {
 
 let blocos = [];
 let frame = 0;
-const gap = 280; // Buraco mais largo
+const gap = 340; // ← buraco maior entre os blocos
 
 function jump() {
   velocity = lift;
