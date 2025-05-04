@@ -20,7 +20,7 @@ let player = {
 
 let blocos = [];
 let frame = 0;
-const gap = 150;
+const gap = 285;
 
 function drawPlayer() {
   ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
