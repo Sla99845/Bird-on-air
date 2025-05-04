@@ -20,7 +20,7 @@ let player = {
 
 let blocos = [];
 let frame = 0;
-const gap = 320; // BURACO MAIOR
+const gap = 200; // BURACO MAIOR
 
 function jump() {
   velocity = lift;
