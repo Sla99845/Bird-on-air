@@ -20,7 +20,7 @@ let player = {
 
 let blocos = [];
 let frame = 0;
-const gap = 250; // <- buraco aumentado aqui
+const gap = 150;
 
 function drawPlayer() {
   ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
@@ -40,25 +40,15 @@ function drawBlocos() {
 
     b.x -= 2;
 
-    // Hitbox reduzida do jogador
-    let hitbox = {
-      x: player.x + 10,
-      y: player.y + 10,
-      width: player.width - 20,
-      height: player.height - 20
-    };
-
-    // Colisão com a parte de cima
-    let colideCima = hitbox.x < b.x + 64 &&
-                     hitbox.x + hitbox.width > b.x &&
-                     hitbox.y < b.y + b.height;
-
-    // Colisão com a parte de baixo
-    let colideBaixo = hitbox.x < b.x + 64 &&
-                      hitbox.x + hitbox.width > b.x &&
-                      hitbox.y + hitbox.height > bottomY;
-
-    if (colideCima || colideBaixo) {
+    // Colisão
+    if (
+      player.x < b.x + 64 &&
+      player.x + player.width > b.x &&
+      (
+        player.y < b.y + b.height ||
+        player.y + player.height > bottomY
+      )
+    ) {
       resetGame();
     }
 
@@ -97,10 +87,16 @@ function update() {
   requestAnimationFrame(update);
 }
 
+// Suporte para espaço no teclado
 document.addEventListener("keydown", function (e) {
   if (e.code === "Space") {
     velocity = lift;
   }
+});
+
+// Suporte para toque no celular
+document.addEventListener("touchstart", function () {
+  velocity = lift;
 });
 
 function resetGame() {
