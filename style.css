@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  background-color: #87CEEB;
+  background-color: #70c5ce;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -8,6 +8,6 @@ body {
 }
 
 canvas {
-  background-color: #bdefff;
   border: 2px solid #000;
+  background-color: #cceeff;
 }
