@@ -20,75 +20,84 @@ let player = {
 
 let blocos = [];
 let frame = 0;
-const gap = 200; // BURACO MAIOR
-
-function jump() {
-  velocity = lift;
-}
-
-// Suporte a teclado, clique e toque (PC e celular)
-document.addEventListener("keydown", jump);
-canvas.addEventListener("mousedown", jump);
-canvas.addEventListener("touchstart", function (e) {
-  e.preventDefault();
-  jump();
-});
+const gap = 150;
 
 function drawPlayer() {
   ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
 }
 
 function drawBlocos() {
-  blocos.forEach(bloco => {
-    ctx.drawImage(blocoImg, bloco.x, bloco.topY, bloco.width, bloco.height);
-    ctx.drawImage(blocoImg, bloco.x, bloco.bottomY, bloco.width, bloco.height);
-  });
-}
+  for (let i = 0; i < blocos.length; i++) {
+    let b = blocos[i];
 
-function updateBlocos() {
-  if (frame % 90 === 0) {
-    const maxTop = canvas.height - gap - 100; // Evita ultrapassar limite
-    let topHeight = Math.floor(Math.random() * maxTop) + 20;
-    let bottomY = topHeight + gap;
+    let bottomY = b.y + b.height + gap;
+    let bottomHeight = canvas.height - bottomY;
 
-    blocos.push({
-      x: canvas.width,
-      topY: 0,
-      bottomY: bottomY,
-      width: 64,
-      height: 400 // altura do sprite real
-    });
-  }
+    // Parte de cima
+    ctx.drawImage(blocoImg, b.x, b.y, 64, b.height);
+    // Parte de baixo
+    ctx.drawImage(blocoImg, b.x, bottomY, 64, bottomHeight);
 
-  blocos.forEach(bloco => {
-    bloco.x -= 2;
-  });
+    b.x -= 2;
 
-  blocos = blocos.filter(bloco => bloco.x + bloco.width > 0);
-}
-
-function checkCollision() {
-  for (let bloco of blocos) {
-    let shrink = 12; // Hitbox menor (encolhe 12px de cada lado)
-
-    let px = player.x + shrink;
-    let py = player.y + shrink;
-    let pw = player.width - shrink * 2;
-    let ph = player.height - shrink * 2;
-
-    let collidesTop = px < bloco.x + bloco.width &&
-                      px + pw > bloco.x &&
-                      py < bloco.topY + bloco.height;
-
-    let collidesBottom = px < bloco.x + bloco.width &&
-                         px + pw > bloco.x &&
-                         py + ph > bloco.bottomY;
-
-    if (collidesTop || collidesBottom || player.y > canvas.height || player.y < 0) {
+    // Colisão
+    if (
+      player.x < b.x + 64 &&
+      player.x + player.width > b.x &&
+      (
+        player.y < b.y + b.height ||
+        player.y + player.height > bottomY
+      )
+    ) {
       resetGame();
     }
+
+    if (b.x + 64 < 0) {
+      blocos.splice(i, 1);
+      i--;
+    }
+  }
+
+  if (frame % 90 === 0) {
+    let height = Math.floor(Math.random() * 200) + 50;
+    blocos.push({ x: canvas.width, y: 0, height: height });
   }
 }
+
+function update() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  velocity += gravity;
+  player.y += velocity;
+
+  if (player.y + player.height > canvas.height) {
+    player.y = canvas.height - player.height;
+    resetGame();
+  }
+
+  if (player.y < 0) {
+    player.y = 0;
+    velocity = 0;
+  }
+
+  drawPlayer();
+  drawBlocos();
+
+  frame++;
+  requestAnimationFrame(update);
+}
+
+// Suporte para espaço no teclado
+document.addEventListener("keydown", function (e) {
+  if (e.code === "Space") {
+    velocity = lift;
+  }
+});
+
+// Suporte para toque no celular
+document.addEventListener("touchstart", function () {
+  velocity = lift;
+});
 
 function resetGame() {
   player.y = 200;
@@ -97,21 +106,9 @@ function resetGame() {
   frame = 0;
 }
 
-function gameLoop() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  drawPlayer();
-  drawBlocos();
-  updateBlocos();
-  checkCollision();
-
-  velocity += gravity;
-  player.y += velocity;
-
-  frame++;
-  requestAnimationFrame(gameLoop);
-}
-
+// Inicia o jogo após carregar imagens
 playerImg.onload = () => {
-  gameLoop();
+  blocoImg.onload = () => {
+    update();
+  };
 };
