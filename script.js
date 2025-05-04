@@ -20,16 +20,15 @@ let player = {
 
 let blocos = [];
 let frame = 0;
-const gap = 220; // Buraco aumentado
+const gap = 280; // Buraco mais largo
 
-// Função de pulo
 function jump() {
   velocity = lift;
 }
 
 document.addEventListener("keydown", jump);
-canvas.addEventListener("mousedown", jump); // Suporte para celular
-canvas.addEventListener("touchstart", jump); // Suporte para toque
+canvas.addEventListener("mousedown", jump);
+canvas.addEventListener("touchstart", jump);
 
 function drawPlayer() {
   ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
@@ -52,7 +51,7 @@ function updateBlocos() {
       topY: 0,
       bottomY: bottomY,
       width: 64,
-      height: canvas.height,
+      height: 400 // altura da imagem real do bloco
     });
   }
 
@@ -60,33 +59,33 @@ function updateBlocos() {
     bloco.x -= 2;
   });
 
-  // Remover blocos fora da tela
   blocos = blocos.filter(bloco => bloco.x + bloco.width > 0);
 }
 
 function checkCollision() {
   for (let bloco of blocos) {
-    let hitboxShrink = 12; // Reduz a hitbox
+    let shrink = 12; // reduz a hitbox 12px de cada lado
 
-    let pX = player.x + hitboxShrink;
-    let pY = player.y + hitboxShrink;
-    let pW = player.width - hitboxShrink * 2;
-    let pH = player.height - hitboxShrink * 2;
+    let px = player.x + shrink;
+    let py = player.y + shrink;
+    let pw = player.width - shrink * 2;
+    let ph = player.height - shrink * 2;
 
-    if (
-      pX < bloco.x + bloco.width &&
-      pX + pW > bloco.x &&
-      (
-        pY < bloco.topY + bloco.height ||
-        pY + pH > bloco.bottomY
-      )
-    ) {
-      // Colidiu
+    // colisão com bloco de cima
+    let collidesTop = px < bloco.x + bloco.width &&
+                      px + pw > bloco.x &&
+                      py < bloco.topY + bloco.height;
+
+    // colisão com bloco de baixo
+    let collidesBottom = px < bloco.x + bloco.width &&
+                         px + pw > bloco.x &&
+                         py + ph > bloco.bottomY;
+
+    if (collidesTop || collidesBottom) {
       resetGame();
     }
   }
 
-  // Fora dos limites
   if (player.y > canvas.height || player.y < 0) {
     resetGame();
   }
@@ -114,7 +113,7 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-// Iniciar jogo
 playerImg.onload = () => {
   gameLoop();
 };
+
