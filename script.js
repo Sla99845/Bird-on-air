@@ -5,7 +5,7 @@ const playerImg = new Image();
 playerImg.src = "Passarinho pixelado.png";
 
 const blocoImg = new Image();
-blocoImg.src = "Bloco.png";
+blocoImg.src = "Arvore pixelada.png";
 
 let gravity = 0.5;
 let lift = -12;
